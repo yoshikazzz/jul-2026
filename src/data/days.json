@@ -1,0 +1,92 @@
+[
+  {
+    "day": 1, "date": "7/15", "dateJa": "7月15日（水）",
+    "label": "香港 1日目", "city": "HK",
+    "activities": [
+      { "id": "hk1-0",  "time": "14:30", "slot": "afternoon", "title": "仙台空港 出発", "place": "Sendai Airport (SDJ)", "category": "transport", "highlight": true, "people": ["ふぅ", "じょしゅ"], "note": "所要時間 4hr 55min" },
+      { "id": "hk1-0b", "time": "18:25", "slot": "evening",   "title": "香港国際空港 到着", "place": "Hong Kong International Airport (HKG)", "category": "transport", "highlight": true, "people": ["ふぅ", "じょしゅ"], "note": "入国・ホテルチェックイン後、合流" },
+      { "id": "hk1-2",  "time": "19:45", "slot": "evening",   "title": "Olé Spanish Restaurant", "place": "Olé, Central", "category": "food", "highlight": true, "people": ["すぅ", "ふぅ", "じょしゅ"], "note": "3人でディナー 🍷 要時間厳守" },
+      { "id": "hk1-3",  "time": "20:00", "slot": "evening",   "title": "ホテルチェックイン", "place": "Regal Hongkong Hotel（富豪香港酒店）", "category": "leisure", "people": ["ふぅ", "じょしゅ"], "note": "Causeway Bay / 銅鑼湾" },
+      { "id": "hk1-4",  "time": "21:30", "slot": "evening",   "title": "ゆずのお店", "place": "Hong Kong", "category": "work", "people": ["ゆず", "ふぅ", "じょしゅ"] }
+    ]
+  },
+  {
+    "day": 2, "date": "7/16", "dateJa": "7月16日（木）",
+    "label": "香港 2日目", "city": "HK",
+    "activities": [
+      { "id": "hk2-1",     "time": "09:00", "slot": "morning",   "title": "香港ディズニーランド", "place": "Lantau Island", "category": "leisure", "highlight": true, "people": ["全員"], "note": "すぅ・ふぅ・じょしゅ・ゆず の4人で！" },
+      { "id": "hk2-2",     "time": "15:00", "slot": "afternoon", "title": "パーク早めに出る", "place": "→ 移動", "category": "transport", "people": ["全員"], "note": "混雑前に退場してみんなでご飯へ" },
+      { "id": "hk2-lunch", "time": "16:00", "slot": "afternoon", "title": "昼食", "place": "未定", "category": "food", "people": ["全員"] },
+      { "id": "hk2-3",     "time": "20:00", "slot": "evening",   "title": "FIRESIDE", "place": "FIRESIDE Hong Kong", "category": "food", "highlight": true, "people": ["全員"] },
+      { "id": "hk2-5",     "time": "22:00", "slot": "evening",   "title": "すぅ 出勤", "place": "—", "category": "work", "people": ["すぅ"] }
+    ]
+  },
+  {
+    "day": 3, "date": "7/17", "dateJa": "7月17日（金）",
+    "label": "香港 3日目", "city": "HK",
+    "activities": [
+      { "id": "hk3-1", "time": "12:00", "slot": "afternoon", "title": "Dim Sum ランチ", "place": "Tim Ho Wan / 城囍", "category": "food", "highlight": true, "people": ["全員"], "note": "みんなで飲茶 🍜 翌日移動前のゆったりランチ" },
+      { "id": "hk3-3", "time": "20:30", "slot": "evening",   "title": "CARBONE Hong Kong", "place": "CARBONE, LKF", "category": "food", "highlight": true, "people": ["全員"], "note": "みんなでディナー 🍝 翌日移動なので早めに解散" },
+      { "id": "hk3-4", "time": "22:30", "slot": "evening",   "title": "すぅのお店 (同伴)", "place": "—", "category": "work", "people": ["全員"], "note": "翌朝フライトのため沢山寝る 😴" }
+    ]
+  },
+  {
+    "day": 4, "date": "7/18", "dateJa": "7月18日（土）",
+    "label": "KL 1日目", "city": "KL",
+    "activities": [
+      { "id": "kl1-dep",   "time": "07:00", "slot": "morning",   "title": "Regal Hongkong Hotel チェックアウト", "place": "Regal Hongkong Hotel（富豪香港酒店）", "category": "transport", "people": ["ふぅ", "じょしゅ"], "note": "荷物まとめて空港へ" },
+      { "id": "kl1-flt",   "time": "11:55", "slot": "morning",   "title": "HKG → KUL フライト", "place": "Hong Kong International Airport (HKG)", "category": "transport", "highlight": true, "people": ["すぅ", "ふぅ", "じょしゅ"], "note": "所要時間 4hr / → Kuala Lumpur International Airport (KUL)" },
+      { "id": "kl1-arr",   "time": "15:55", "slot": "afternoon", "title": "KL 到着", "place": "Kuala Lumpur International Airport (KUL)", "category": "transport", "people": ["すぅ", "ふぅ", "じょしゅ"] },
+      { "id": "kl1-mogu",  "time": "16:45", "slot": "afternoon", "title": "KL 到着", "place": "Kuala Lumpur International Airport (KUL)", "category": "transport", "people": ["もぐ"] },
+      { "id": "kl1-hotel", "time": "17:30", "slot": "afternoon", "title": "ホテルチェックイン", "place": "Solomon House", "category": "leisure", "people": ["すぅ", "ふぅ", "じょしゅ", "もぐ"], "note": "荷物を置いて夜に備える" },
+      { "id": "kl1-dinner","time": "19:30", "slot": "evening",   "title": "夕飯", "place": "未定", "category": "food", "people": ["すぅ", "ふぅ", "じょしゅ", "もぐ"] },
+      { "id": "kl1-party", "time": "22:00", "slot": "evening",   "title": "前夜祭 🎉", "place": "Kuala Lumpur", "category": "leisure", "highlight": true, "people": ["すぅ", "ふぅ", "じょしゅ", "もぐ"], "note": "パーティ" }
+    ]
+  },
+  {
+    "day": 5, "date": "7/19", "dateJa": "7月19日（日）",
+    "label": "KL 2日目", "city": "KL",
+    "activities": [
+      { "id": "kl2-wake",  "time": "—",     "slot": "morning",   "title": "ゆっくり起床", "place": "Solomon House", "category": "leisure", "people": ["すぅ", "ふぅ", "じょしゅ", "もぐ"] },
+      { "id": "kl2-lunch", "time": "—",     "slot": "afternoon", "title": "昼食", "place": "未定", "category": "food", "people": ["すぅ", "ふぅ", "じょしゅ", "もぐ"] },
+      { "id": "kl2-arr1",  "time": "—",     "slot": "afternoon", "title": "KL 到着", "place": "Kuala Lumpur International Airport (KUL)", "category": "transport", "people": ["だぃ", "はりぃ", "まこ", "こうへい"] },
+      { "id": "kl2-yuzu",  "time": "15:55", "slot": "afternoon", "title": "KL 到着", "place": "Kuala Lumpur International Airport (KUL)", "category": "transport", "people": ["ゆず"] },
+      { "id": "kl2-din",   "time": "19:00", "slot": "evening",   "title": "夕飯", "place": "未定", "category": "food", "people": ["全員"] },
+      { "id": "kl2-party", "time": "22:00", "slot": "evening",   "title": "本祭 🎊", "place": "Kuala Lumpur", "category": "leisure", "highlight": true, "people": ["全員"], "note": "パーティ" }
+    ]
+  },
+  {
+    "day": 6, "date": "7/20", "dateJa": "7月20日（月）",
+    "label": "KL 3日目", "city": "KL",
+    "activities": [
+      { "id": "kl3-rest",  "time": "—",     "slot": "morning",   "title": "休養", "place": "Solomon House", "category": "leisure", "people": ["全員"] },
+      { "id": "kl3-dep1",  "time": "—",     "slot": "morning",   "title": "KUL → SIN フライト", "place": "Kuala Lumpur International Airport (KUL)", "category": "transport", "people": ["だぃ", "まこ", "こうへい"] },
+      { "id": "kl3-dep2",  "time": "14:10", "slot": "afternoon", "title": "KUL → HND フライト", "place": "Kuala Lumpur International Airport (KUL)", "category": "transport", "people": ["もぐ"] },
+      { "id": "kl3-din",   "time": "19:00", "slot": "evening",   "title": "夕飯", "place": "未定", "category": "food", "people": ["すぅ", "ふぅ", "ゆず", "じょしゅ", "はりぃ"] },
+      { "id": "kl3-aftr",  "time": "22:00", "slot": "evening",   "title": "後夜祭 🎉", "place": "Kuala Lumpur", "category": "leisure", "highlight": true }
+    ]
+  },
+  {
+    "day": 7, "date": "7/21", "dateJa": "7月21日（火）",
+    "label": "バンコク 1日目", "city": "BKK",
+    "activities": [
+      { "id": "bkk1-harry", "time": "—",    "slot": "morning", "title": "KUL → SIN フライト", "place": "Kuala Lumpur International Airport (KUL)", "category": "transport", "people": ["はりぃ"] },
+      { "id": "bkk1-yuzu",  "time": "07:15", "slot": "morning", "title": "KUL → HKG フライト", "place": "Kuala Lumpur International Airport (KUL)", "category": "transport", "people": ["ゆず"] },
+      { "id": "bkk1-tbd",   "time": "—", "slot": "morning", "title": "未定", "category": "leisure", "people": ["すぅ", "ふぅ", "じょしゅ"] }
+    ]
+  },
+  {
+    "day": 8, "date": "7/22", "dateJa": "7月22日（水）",
+    "label": "バンコク 2日目", "city": "BKK",
+    "activities": [
+      { "id": "bkk2-tbd", "time": "—", "slot": "morning", "title": "未定", "category": "leisure", "people": ["すぅ", "ふぅ", "じょしゅ"] }
+    ]
+  },
+  {
+    "day": 9, "date": "7/23", "dateJa": "7月23日（木）",
+    "label": "バンコク 3日目", "city": "BKK",
+    "activities": [
+      { "id": "bkk3-tbd", "time": "—", "slot": "morning", "title": "未定", "category": "leisure", "people": ["すぅ", "ふぅ", "じょしゅ"] }
+    ]
+  }
+]

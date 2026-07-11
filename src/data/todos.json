@@ -1,0 +1,9 @@
+[
+  { "id": "t1a", "text": "航空券 SDJ → HKG", "category": "flight", "done": false, "priority": "high" },
+  { "id": "t2a", "text": "香港ホテル（Regal Hongkong Hotel）", "category": "hotel", "done": false, "priority": "high" },
+  { "id": "t1b", "text": "航空券 HKG → KUL", "category": "flight", "done": false, "priority": "high" },
+  { "id": "t2b", "text": "KLホテル（Solomon House）", "category": "hotel", "done": false, "priority": "high" },
+  { "id": "t1c", "text": "航空券 KUL → BKK", "category": "flight", "done": false, "priority": "high" },
+  { "id": "t2c", "text": "バンコクホテル", "category": "hotel", "done": false, "priority": "high" },
+  { "id": "t1d", "text": "航空券 BKK → KIX", "category": "flight", "done": false, "priority": "high" }
+]

@@ -1,0 +1,29 @@
+[
+  {
+    "id": "HK",
+    "label": "香港",
+    "labelEn": "HONG KONG",
+    "accentClass": "text-rose-400",
+    "bgClass": "bg-rose-500",
+    "dates": "7/15–18",
+    "memberIds": ["suu", "fuu", "joshu", "yuzu"]
+  },
+  {
+    "id": "KL",
+    "label": "KL",
+    "labelEn": "KUALA LUMPUR",
+    "accentClass": "text-cyan-400",
+    "bgClass": "bg-cyan-500",
+    "dates": "7/18–21",
+    "memberIds": ["suu", "fuu", "joshu", "yuzu", "mogu", "dai", "harry", "mako", "kohei"]
+  },
+  {
+    "id": "BKK",
+    "label": "バンコク",
+    "labelEn": "BANGKOK",
+    "accentClass": "text-amber-400",
+    "bgClass": "bg-amber-500",
+    "dates": "7/21–23",
+    "memberIds": ["suu", "fuu", "joshu"]
+  }
+]
