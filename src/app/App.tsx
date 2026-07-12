@@ -156,6 +156,7 @@ export default function App() {
   const [todos, setTodos] = useState<TodoItem[]>(TODOS);
   const [newTodo, setNewTodo] = useState("");
   const [filter, setFilter] = useState<"all" | "open" | "done">("all");
+  const [mobileView, setMobileView] = useState<"schedule" | "checklist">("schedule");
 
   const cityDays = DAYS.filter((d) => d.city === activeCity);
   const currentDay = cityDays[activeDayIdx] ?? cityDays[0];
@@ -196,22 +197,22 @@ export default function App() {
     <div className="min-h-screen bg-background text-foreground" style={{ fontFamily: "'DM Mono', monospace" }}>
 
       {/* ── Top Bar ───────────────────────────────────────────────────────── */}
-      <header className="border-b border-border px-6 h-14 flex items-center justify-between shrink-0">
-        <div className="flex items-center gap-3">
-          <Plane size={15} className="text-primary" />
-          <span className="text-xs tracking-[0.18em] uppercase text-muted-foreground" style={{ fontFamily: "'DM Mono', monospace" }}>
+      <header className="border-b border-border px-4 md:px-6 py-2 md:py-0 md:h-14 flex flex-wrap md:flex-nowrap items-center justify-between gap-y-2 shrink-0">
+        <div className="flex items-center gap-2 md:gap-3 min-w-0">
+          <Plane size={15} className="text-primary shrink-0" />
+          <span className="text-xs tracking-[0.18em] uppercase text-muted-foreground truncate" style={{ fontFamily: "'DM Mono', monospace" }}>
             TRIP PLAN 2026
           </span>
-          <ChevronRight size={11} className="text-muted-foreground" />
-          <span className="text-sm font-semibold" style={{ fontFamily: "'DM Mono', monospace" }}>
+          <ChevronRight size={11} className="hidden sm:block text-muted-foreground shrink-0" />
+          <span className="hidden sm:inline text-sm font-semibold truncate" style={{ fontFamily: "'DM Mono', monospace" }}>
             Hong Kong · Kuala Lumpur · Bangkok
           </span>
         </div>
-        <div className="flex items-center gap-5 text-xs text-muted-foreground" style={{ fontFamily: "'DM Mono', monospace" }}>
-          <span>2026.07.15 — 07.23</span>
+        <div className="flex items-center gap-3 md:gap-5 text-xs text-muted-foreground shrink-0" style={{ fontFamily: "'DM Mono', monospace" }}>
+          <span className="hidden sm:inline">2026.07.15 — 07.23</span>
           <span className="text-accent font-medium">9 DAYS</span>
           <div className="flex items-center gap-2">
-            <div className="w-20 h-0.5 bg-secondary overflow-hidden rounded">
+            <div className="w-14 md:w-20 h-0.5 bg-secondary overflow-hidden rounded">
               <div className="h-full bg-accent transition-all" style={{ width: `${progress}%` }} />
             </div>
             <span>準備 {progress}%</span>
@@ -220,7 +221,7 @@ export default function App() {
       </header>
 
       {/* ── City Tabs ─────────────────────────────────────────────────────── */}
-      <div className="border-b border-border flex">
+      <div className="border-b border-border flex overflow-x-auto" style={{ scrollbarWidth: "none" }}>
         {(["HK", "KL", "BKK"] as City[]).map((city) => {
           const c = cityConfig[city];
           const active = activeCity === city;
@@ -230,7 +231,7 @@ export default function App() {
               key={city}
               onClick={() => handleCitySwitch(city)}
               className={`
-                relative flex items-center gap-3 px-8 py-3.5 text-sm transition-colors border-b-2
+                relative flex items-center gap-2 md:gap-3 px-4 md:px-8 py-3 md:py-3.5 text-sm transition-colors border-b-2 shrink-0
                 ${active ? `border-b-2 ${c.bg.replace("bg-", "border-")} bg-card` : "border-transparent hover:bg-secondary/30 text-muted-foreground"}
               `}
             >
@@ -254,10 +255,25 @@ export default function App() {
         })}
       </div>
 
-      <div className="flex" style={{ height: "calc(100vh - 108px)" }}>
+      {/* ── Mobile View Toggle (Schedule / Checklist) ────────────────────── */}
+      <div className="flex md:hidden border-b border-border">
+        {(["schedule", "checklist"] as const).map((v) => (
+          <button
+            key={v}
+            onClick={() => setMobileView(v)}
+            className={`flex-1 py-2.5 text-[10px] tracking-widest uppercase transition-colors
+              ${mobileView === v ? "text-foreground border-b-2 border-primary" : "text-muted-foreground hover:text-foreground"}`}
+            style={{ fontFamily: "'DM Mono', monospace" }}
+          >
+            {v === "schedule" ? "SCHEDULE" : "CHECKLIST"}
+          </button>
+        ))}
+      </div>
 
-        {/* ── Left: Day Sidebar ─────────────────────────────────────────── */}
-        <aside className="w-48 border-r border-border flex flex-col shrink-0 overflow-y-auto" style={{ scrollbarWidth: "none" }}>
+      <div className="flex flex-col md:flex-row md:h-[calc(100vh-108px)]">
+
+        {/* ── Left: Day Sidebar (desktop only) ─────────────────────────── */}
+        <aside className="hidden md:flex w-48 border-r border-border flex-col shrink-0 overflow-y-auto" style={{ scrollbarWidth: "none" }}>
           <div className="px-4 py-3 text-[10px] tracking-widest text-muted-foreground uppercase border-b border-border"
             style={{ fontFamily: "'DM Mono', monospace" }}>
             DAYS
@@ -283,19 +299,37 @@ export default function App() {
         </aside>
 
         {/* ── Center: Schedule ──────────────────────────────────────────── */}
-        <main className="flex-1 overflow-y-auto" style={{ scrollbarWidth: "none" }}>
+        <main className={`flex-1 overflow-y-auto ${mobileView === "schedule" ? "block" : "hidden"} md:block`} style={{ scrollbarWidth: "none" }}>
+
+          {/* Mobile: horizontal day chips (replaces the desktop sidebar) */}
+          <div className="md:hidden flex gap-2 overflow-x-auto px-4 py-3 border-b border-border" style={{ scrollbarWidth: "none" }}>
+            {cityDays.map((day, i) => (
+              <button
+                key={day.day}
+                onClick={() => setActiveDayIdx(i)}
+                className={`shrink-0 text-left px-3 py-2 rounded border transition-colors
+                  ${activeDayIdx === i ? `bg-card ${cfg.bg.replace("bg-", "border-")}` : "border-border hover:bg-secondary/30"}`}
+              >
+                <div className={`text-[9px] tracking-widest uppercase ${activeDayIdx === i ? cfg.accent : "text-muted-foreground"}`}
+                  style={{ fontFamily: "'DM Mono', monospace" }}>
+                  DAY {day.day}
+                </div>
+                <div className="text-[11px] font-medium mt-0.5 whitespace-nowrap">{day.date}</div>
+              </button>
+            ))}
+          </div>
 
           {/* Hero */}
-          <div className="relative h-36 overflow-hidden bg-secondary">
+          <div className="relative h-24 md:h-36 overflow-hidden bg-secondary">
             <img src={heroPhoto} alt={currentDay.label} className="w-full h-full object-cover opacity-30" />
             <div className="absolute inset-0 bg-gradient-to-r from-background via-background/70 to-transparent" />
-            <div className="absolute inset-0 px-8 flex items-center">
+            <div className="absolute inset-0 px-4 md:px-8 flex items-center">
               <div>
                 <div className={`text-[10px] tracking-[0.2em] uppercase mb-1 ${cfg.accent}`}
                   style={{ fontFamily: "'DM Mono', monospace" }}>
                   {cfg.labelEn} · {currentDay.dateJa}
                 </div>
-                <h2 className="text-2xl font-bold" style={{ fontFamily: "'DM Mono', monospace" }}>
+                <h2 className="text-xl md:text-2xl font-bold" style={{ fontFamily: "'DM Mono', monospace" }}>
                   {currentDay.label}
                 </h2>
               </div>
@@ -303,7 +337,7 @@ export default function App() {
           </div>
 
           {/* Timeline */}
-          <div className="px-8 py-6 space-y-7">
+          <div className="px-4 md:px-8 py-5 md:py-6 space-y-6 md:space-y-7">
             {slots.map((slot) => {
               const acts = currentDay.activities.filter((a) => a.slot === slot);
               if (!acts.length) return null;
@@ -387,7 +421,7 @@ export default function App() {
         </main>
 
         {/* ── Right: ToDo ───────────────────────────────────────────────── */}
-        <aside className="w-72 border-l border-border flex flex-col shrink-0 overflow-hidden">
+        <aside className={`${mobileView === "checklist" ? "flex" : "hidden"} md:flex w-full md:w-72 md:border-l border-border flex-col shrink-0 overflow-hidden`}>
           <div className="px-5 py-3 border-b border-border flex items-center justify-between">
             <span className="text-[10px] tracking-widest text-muted-foreground uppercase"
               style={{ fontFamily: "'DM Mono', monospace" }}>
