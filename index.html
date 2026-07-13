@@ -9,11 +9,31 @@
       <meta name="description" content="Plan and design your Hong Kong travel itinerary and to-do lists effortlessly, ensuring a seamless and organized travel experience." />
       <meta name="robots" content="noindex, nofollow" />
       <style>html, body { height: 100%; margin: 0; } #root { height: 100%; }</style>
-      
+      <script type="text/javascript">
+        // Single Page Apps for GitHub Pages
+        // https://github.com/rafgraph/spa-github-pages
+        (function (l) {
+          if (l.search[1] === "/") {
+            var decoded = l.search
+              .slice(1)
+              .split("&")
+              .map(function (s) {
+                return s.replace(/~and~/g, "&");
+              })
+              .join("?");
+            window.history.replaceState(
+              null,
+              null,
+              l.pathname.slice(0, -1) + decoded + l.hash
+            );
+          }
+        })(window.location);
+      </script>
+
     </head>
 
     <body>
-      
+
       <div id="root"></div>
       <script type="module" src="/src/main.tsx"></script>
       
