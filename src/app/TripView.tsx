@@ -316,7 +316,7 @@ export default function TripView() {
               {/* Hero */}
               <div className="relative h-24 md:h-36 overflow-hidden bg-secondary">
                 {currentDay.heroPhotoUrl && (
-                  <img src={currentDay.heroPhotoUrl} alt={currentDay.label} className="w-full h-full object-cover opacity-30" />
+                  <img src={currentDay.heroPhotoUrl} alt={currentDay.label} className="w-full h-full object-cover opacity-50" />
                 )}
                 <div className="absolute inset-0 bg-gradient-to-r from-background via-background/70 to-transparent" />
                 <div className="absolute inset-0 px-4 md:px-8 flex items-center">
@@ -425,6 +425,22 @@ export default function TripView() {
               </div>
             </>
           )}
+
+          {/* Members Legend */}
+          <div className="border-t border-border px-4 md:px-8 py-3">
+            <div className="text-[9px] tracking-widest text-muted-foreground uppercase mb-2"
+              style={{ fontFamily: "'DM Mono', monospace" }}>
+              MEMBERS
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              {cityMemberNames.map((p) => (
+                <span key={p} className={`text-[10px] px-2 py-0.5 rounded-sm border ${personColors[p] ?? "bg-secondary/30 text-muted-foreground border-border"}`}
+                  style={{ fontFamily: "'DM Mono', monospace" }}>
+                  {p}
+                </span>
+              ))}
+            </div>
+          </div>
         </main>
 
         {/* ── Right: ToDo ───────────────────────────────────────────────── */}
@@ -504,22 +520,6 @@ export default function TripView() {
                 className="bg-primary hover:bg-primary/80 text-white w-8 h-8 rounded flex items-center justify-center transition-colors shrink-0">
                 <Plus size={13} />
               </button>
-            </div>
-          </div>
-
-          {/* People Legend */}
-          <div className="border-t border-border px-4 py-3">
-            <div className="text-[9px] tracking-widest text-muted-foreground uppercase mb-2"
-              style={{ fontFamily: "'DM Mono', monospace" }}>
-              MEMBERS
-            </div>
-            <div className="flex flex-wrap gap-1.5">
-              {cityMemberNames.map((p) => (
-                <span key={p} className={`text-[10px] px-2 py-0.5 rounded-sm border ${personColors[p] ?? "bg-secondary/30 text-muted-foreground border-border"}`}
-                  style={{ fontFamily: "'DM Mono', monospace" }}>
-                  {p}
-                </span>
-              ))}
             </div>
           </div>
         </aside>
