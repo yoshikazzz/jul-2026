@@ -382,7 +382,7 @@ export default function TripView() {
                                 </div>
                                 {/* People */}
                                 {people.length > 0 && (
-                                  <div className="flex flex-wrap gap-1 shrink-0">
+                                  <div className="grid grid-cols-2 gap-1 shrink-0">
                                     {people.map((p) => (
                                       <span key={p}
                                         className={`text-[10px] px-1.5 py-0.5 rounded-sm border ${personColors[p] ?? "bg-secondary/30 text-muted-foreground border-border"}`}
