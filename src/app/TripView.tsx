@@ -479,7 +479,7 @@ export default function TripView() {
                 className="group flex items-start gap-3 px-4 py-3 border-b border-border hover:bg-secondary/20 transition-colors">
                 <button onClick={() => toggleTodo(todo.id)}
                   className={`mt-0.5 shrink-0 w-4 h-4 rounded-sm border flex items-center justify-center transition-all
-                    ${todo.done ? "bg-primary border-primary" : "border-border hover:border-muted-foreground"}`}>
+                    ${todo.done ? "bg-primary border-primary" : "border-muted-foreground hover:border-foreground"}`}>
                   {todo.done && <Check size={9} className="text-white" />}
                 </button>
                 <div className="flex-1 min-w-0">
