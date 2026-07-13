@@ -376,7 +376,7 @@ export default function TripView() {
                                   {act.note && (
                                     <p className="mt-1 text-[11px] text-muted-foreground leading-relaxed"
                                       style={{ fontFamily: "'DM Mono', monospace" }}>
-                                      // {act.note}
+                                      {act.note}
                                     </p>
                                   )}
                                 </div>
