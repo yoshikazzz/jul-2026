@@ -368,9 +368,9 @@ export default function TripView() {
                                     {act.highlight && <Star size={9} className="text-accent fill-accent shrink-0" />}
                                   </div>
                                   {act.place && (
-                                    <div className="flex items-center gap-1 mt-0.5 text-xs text-muted-foreground">
-                                      <MapPin size={9} />
-                                      {act.place}
+                                    <div className="flex items-start gap-1 mt-0.5 text-xs text-muted-foreground">
+                                      <MapPin size={9} className="shrink-0 mt-0.5" />
+                                      <span>{act.place}</span>
                                     </div>
                                   )}
                                   {act.note && (
