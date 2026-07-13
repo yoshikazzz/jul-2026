@@ -47,5 +47,13 @@
 - [x] Route 53: removed `jul-2026.josh-nish.com` CNAME (`josh-nish.com` zone, `Z04879112XAZQ0F5Z152X`)
 - [x] GitHub Pages custom domain switched to `travels.kinako.dog`; cert issued & approved by
       GitHub, HTTPS re-enforced
-- [ ] Commit and push the code changes (site currently still serves the pre-migration build)
-- [ ] `travels.josh-nish.com` → `travels.kinako.dog` redirect infrastructure (not started)
+- [x] Commit and push the code changes
+- [x] `travels.josh-nish.com` → `travels.kinako.dog` redirect infrastructure: implemented as a
+      second, minimal GitHub Pages site (`yoshikazzz/travels-josh-nish-redirect`, public repo).
+      `index.html` and `404.html` both run `location.replace("https://travels.kinako.dog" +
+      location.pathname + location.search)`, so any path (including `/{tripCode}`) forwards
+      through unchanged. Custom domain `travels.josh-nish.com` configured via GitHub Pages
+      (CNAME file autodetected), Route 53 CNAME added in the `josh-nish.com` zone
+      (`Z04879112XAZQ0F5Z152X`) → `yoshikazzz.github.io`. HTTPS cert issued & approved,
+      HTTPS enforced. Verified end-to-end: `/`, `/{tripCode}`, and unknown codes all redirect
+      correctly to the equivalent `travels.kinako.dog` path over HTTPS.

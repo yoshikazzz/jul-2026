@@ -2,7 +2,7 @@ import { supabase } from "./supabase";
 
 export type TimeSlot = "morning" | "afternoon" | "evening";
 export type ActivityCategory = "transport" | "food" | "sightseeing" | "shopping" | "leisure" | "work";
-export type TodoCategory = "flight" | "hotel" | "booking" | "packing" | "money" | "health" | "info";
+export type TodoCategory = "flight" | "hotel" | "booking" | "packing" | "money" | "health" | "info" | "food";
 export type TodoPriority = "high" | "mid" | "low";
 
 export interface Member {

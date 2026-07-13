@@ -2,12 +2,12 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router";
 import {
   Check, MapPin, Plane, Train, Camera, Utensils,
-  ShoppingBag, Star, ChevronRight, Plus, X, Briefcase,
+  ShoppingBag, Star, ChevronRight, X, Briefcase,
   Moon, Sun, Sunset
 } from "lucide-react";
 import Reserved from "./Reserved";
 import {
-  fetchTripData, toggleTodoDb, removeTodoDb, addTodoDb,
+  fetchTripData, toggleTodoDb, removeTodoDb,
   type TripData, type Activity, type TimeSlot, type Todo,
 } from "../lib/tripData";
 import { formatDateJa, formatDateRange, formatCityDates, countDays } from "../lib/format";
@@ -71,6 +71,7 @@ const todoCategoryLabel: Record<Todo["category"], string> = {
   money: "お金",
   health: "健康",
   info: "情報",
+  food: "食事",
 };
 
 const todoCategoryColor: Record<Todo["category"], string> = {
@@ -81,6 +82,7 @@ const todoCategoryColor: Record<Todo["category"], string> = {
   money: "text-amber-400 border-amber-400/40 bg-amber-400/10",
   health: "text-emerald-400 border-emerald-400/40 bg-emerald-400/10",
   info: "text-blue-400 border-blue-400/40 bg-blue-400/10",
+  food: "text-orange-400 border-orange-400/40 bg-orange-400/10",
 };
 
 const slots: TimeSlot[] = ["morning", "afternoon", "evening"];
@@ -96,7 +98,6 @@ export default function TripView() {
   const [activeCity, setActiveCity] = useState<string>("");
   const [activeDayIdx, setActiveDayIdx] = useState(0);
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [newTodo, setNewTodo] = useState("");
   const [filter, setFilter] = useState<"all" | "open" | "done">("all");
   const [mobileView, setMobileView] = useState<"schedule" | "checklist">("schedule");
 
@@ -151,28 +152,6 @@ export default function TripView() {
   const removeTodo = (id: number) => {
     setTodos((p) => p.filter((t) => t.id !== id));
     removeTodoDb(id);
-  };
-
-  const addTodo = () => {
-    const text = newTodo.trim();
-    if (!text) return;
-    setNewTodo("");
-    const sortOrder = todos.reduce((max, t) => Math.max(max, t.sortOrder), 0) + 1;
-    addTodoDb(data.trip.id, text, sortOrder).then(({ data: inserted }) => {
-      if (!inserted) return;
-      setTodos((p) => [
-        ...p,
-        {
-          id: inserted.id,
-          tripId: inserted.trip_id,
-          text: inserted.text,
-          category: inserted.category,
-          done: inserted.done,
-          priority: inserted.priority,
-          sortOrder: inserted.sort_order,
-        },
-      ]);
-    });
   };
 
   const visibleTodos = todos.filter((t) =>
@@ -504,24 +483,6 @@ export default function TripView() {
             ))}
           </div>
 
-          {/* Add */}
-          <div className="border-t border-border p-4">
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={newTodo}
-                onChange={(e) => setNewTodo(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && addTodo()}
-                placeholder="タスクを追加…"
-                className="flex-1 bg-secondary text-foreground text-xs px-3 py-2 rounded outline-none placeholder:text-muted-foreground focus:ring-1 focus:ring-primary/50"
-                style={{ fontFamily: "'DM Mono', monospace" }}
-              />
-              <button onClick={addTodo}
-                className="bg-primary hover:bg-primary/80 text-white w-8 h-8 rounded flex items-center justify-center transition-colors shrink-0">
-                <Plus size={13} />
-              </button>
-            </div>
-          </div>
         </aside>
       </div>
     </div>
