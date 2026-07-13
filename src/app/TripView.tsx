@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router";
 import {
   Check, MapPin, Plane, Train, Camera, Utensils,
@@ -6,65 +6,19 @@ import {
   Moon, Sun, Sunset
 } from "lucide-react";
 import Reserved from "./Reserved";
-import tripsJson  from "../data/trips.json";
-import todosJson  from "../data/todos.json";
-import daysJson   from "../data/days.json";
-import membersJson from "../data/members.json";
-import citiesJson  from "../data/cities.json";
-
-// ─── Types ───────────────────────────────────────────────────────────────────
-
-type TimeSlot = "morning" | "afternoon" | "evening";
-type Person = "すぅ" | "ふぅ" | "じょしゅ" | "ゆず" | "もぐ" | "だぃ" | "はりぃ" | "まこ" | "こうへい" | "全員";
-type City = "HK" | "KL" | "BKK";
-
-interface Activity {
-  id: string;
-  time: string;
-  slot: TimeSlot;
-  title: string;
-  place?: string;
-  duration?: string;
-  category: "transport" | "food" | "sightseeing" | "shopping" | "leisure" | "work";
-  note?: string;
-  highlight?: boolean;
-  people?: Person[];
-}
-
-interface DayPlan {
-  day: number;
-  date: string;
-  dateJa: string;
-  label: string;
-  city: City;
-  activities: Activity[];
-}
-
-interface TodoItem {
-  id: string;
-  text: string;
-  category: "flight" | "hotel" | "booking" | "packing" | "money" | "health" | "info";
-  done: boolean;
-  priority: "high" | "mid" | "low";
-}
-
-interface Trip {
-  id: number;
-  code: string;
-  title: string;
-  titleEn: string;
-  startDate: string;
-  endDate: string;
-}
-
-// ─── Data (loaded from JSON) ──────────────────────────────────────────────────
-
-const TRIPS: Trip[]      = tripsJson   as Trip[];
-const DAYS: DayPlan[]     = daysJson    as unknown as DayPlan[];
-const TODOS: TodoItem[] = (todosJson as unknown[]).map((t) => t as TodoItem);
-
+import {
+  fetchTripData, toggleTodoDb, removeTodoDb, addTodoDb,
+  type TripData, type Activity, type TimeSlot, type Todo,
+} from "../lib/tripData";
+import { formatDateJa, formatDateRange, formatCityDates, countDays } from "../lib/format";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
+
+const colorTokenClasses: Record<string, { accent: string; bg: string }> = {
+  rose:  { accent: "text-rose-400",  bg: "bg-rose-500" },
+  cyan:  { accent: "text-cyan-400",  bg: "bg-cyan-500" },
+  amber: { accent: "text-amber-400", bg: "bg-amber-500" },
+};
 
 const personColors: Record<string, string> = {
   "すぅ":    "bg-rose-500/20 text-rose-300 border-rose-500/30",
@@ -78,7 +32,6 @@ const personColors: Record<string, string> = {
   "こうへい": "bg-indigo-500/20 text-indigo-300 border-indigo-500/30",
   "全員":    "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
 };
-
 
 const categoryColors: Record<Activity["category"], string> = {
   transport: "text-blue-400",
@@ -110,7 +63,7 @@ const slotLabel: Record<TimeSlot, string> = {
   evening: "夜",
 };
 
-const todoCategoryLabel: Record<TodoItem["category"], string> = {
+const todoCategoryLabel: Record<Todo["category"], string> = {
   flight: "航空券",
   hotel: "ホテル",
   booking: "予約",
@@ -120,7 +73,7 @@ const todoCategoryLabel: Record<TodoItem["category"], string> = {
   info: "情報",
 };
 
-const todoCategoryColor: Record<TodoItem["category"], string> = {
+const todoCategoryColor: Record<Todo["category"], string> = {
   flight: "text-sky-400 border-sky-400/40 bg-sky-400/10",
   hotel: "text-teal-400 border-teal-400/40 bg-teal-400/10",
   booking: "text-primary border-primary/40 bg-primary/10",
@@ -130,88 +83,96 @@ const todoCategoryColor: Record<TodoItem["category"], string> = {
   info: "text-blue-400 border-blue-400/40 bg-blue-400/10",
 };
 
-type CityConfig = { label: string; labelEn: string; accent: string; bg: string; dates: string };
-const cityConfig: Record<City, CityConfig> = Object.fromEntries(
-  citiesJson.map((c) => [c.id, { label: c.label, labelEn: c.labelEn, accent: c.accentClass, bg: c.bgClass, dates: c.dates }])
-) as Record<City, CityConfig>;
-
-const cityMembers: Record<City, Person[]> = Object.fromEntries(
-  citiesJson.map((c) => [
-    c.id,
-    membersJson.filter((m) => c.memberIds.includes(m.id)).map((m) => m.name as Person),
-  ])
-) as Record<City, Person[]>;
-
-
-const cityHeroPhotos: Record<City, string[]> = {
-  HK: [
-    "https://images.unsplash.com/photo-1597172300672-dbcdf33ac44e?w=1200&h=400&fit=crop&auto=format",
-    "https://images.unsplash.com/photo-1597172300672-dbcdf33ac44e?w=1200&h=400&fit=crop&auto=format",
-    "https://images.unsplash.com/photo-1597172300672-dbcdf33ac44e?w=1200&h=400&fit=crop&auto=format",
-    "https://images.unsplash.com/photo-1597172300672-dbcdf33ac44e?w=1200&h=400&fit=crop&auto=format",
-  ],
-  KL: [
-    "https://images.unsplash.com/photo-1596422846543-75c6fc197f07?w=1200&h=400&fit=crop&auto=format",
-    "https://images.unsplash.com/photo-1555921015-5532091f6026?w=1200&h=400&fit=crop&auto=format",
-    "https://images.unsplash.com/photo-1508009603885-50cf7c579365?w=1200&h=400&fit=crop&auto=format",
-  ],
-  BKK: [
-    "https://images.unsplash.com/photo-1508009603885-50cf7c579365?w=1200&h=400&fit=crop&auto=format",
-    "https://images.unsplash.com/photo-1563492065599-3520f775eeed?w=1200&h=400&fit=crop&auto=format",
-  ],
-};
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function formatDateRange(startDate: string, endDate: string): string {
-  const [sy, sm, sd] = startDate.split("-");
-  const [, em, ed] = endDate.split("-");
-  return `${sy}.${sm}.${sd} — ${em}.${ed}`;
-}
-
-function countDays(startDate: string, endDate: string): number {
-  const ms = new Date(endDate).getTime() - new Date(startDate).getTime();
-  return Math.round(ms / 86_400_000) + 1;
-}
+const slots: TimeSlot[] = ["morning", "afternoon", "evening"];
 
 // ─── App ──────────────────────────────────────────────────────────────────────
 
 export default function TripView() {
   const { code = "" } = useParams();
-  const trip = TRIPS.find((t) => t.code === code);
 
-  const [activeCity, setActiveCity] = useState<City>("HK");
+  const [status, setStatus] = useState<"loading" | "notfound" | "ready">("loading");
+  const [data, setData] = useState<TripData | null>(null);
+
+  const [activeCity, setActiveCity] = useState<string>("");
   const [activeDayIdx, setActiveDayIdx] = useState(0);
-  const [todos, setTodos] = useState<TodoItem[]>(TODOS);
+  const [todos, setTodos] = useState<Todo[]>([]);
   const [newTodo, setNewTodo] = useState("");
   const [filter, setFilter] = useState<"all" | "open" | "done">("all");
   const [mobileView, setMobileView] = useState<"schedule" | "checklist">("schedule");
 
-  if (!trip) return <Reserved />;
+  useEffect(() => {
+    let cancelled = false;
+    fetchTripData(code).then((result) => {
+      if (cancelled) return;
+      if (!result) {
+        setStatus("notfound");
+        return;
+      }
+      setData(result);
+      setTodos(result.todos);
+      setActiveCity(result.cities[0]?.code ?? "");
+      setStatus("ready");
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [code]);
 
-  const cityDays = DAYS.filter((d) => d.city === activeCity);
+  if (status === "loading") return <div style={{ minHeight: "100vh" }} />;
+  if (status === "notfound" || !data) return <Reserved />;
+
+  const memberName = (id: string) => data.members.find((m) => m.id === id)?.name ?? id;
+
+  const city = data.cities.find((c) => c.code === activeCity) ?? data.cities[0];
+  const cityDays = city?.days ?? [];
   const currentDay = cityDays[activeDayIdx] ?? cityDays[0];
-  const cfg = cityConfig[activeCity];
+  const cfg = {
+    label: city?.label ?? "",
+    labelEn: city?.labelEn ?? "",
+    accent: colorTokenClasses[city?.colorToken ?? "rose"].accent,
+    bg: colorTokenClasses[city?.colorToken ?? "rose"].bg,
+    dates: city ? formatCityDates(city.startDate, city.endDate) : "",
+  };
 
-  const slots: TimeSlot[] = ["morning", "afternoon", "evening"];
-  const dayCount = countDays(trip.startDate, trip.endDate);
+  const dayCount = countDays(data.trip.startDate, data.trip.endDate);
 
-  const handleCitySwitch = (city: City) => {
-    setActiveCity(city);
+  const handleCitySwitch = (cityCode: string) => {
+    setActiveCity(cityCode);
     setActiveDayIdx(0);
   };
 
-  const toggleTodo = (id: string) =>
+  const toggleTodo = (id: number) => {
+    const target = todos.find((t) => t.id === id);
+    if (!target) return;
     setTodos((p) => p.map((t) => (t.id === id ? { ...t, done: !t.done } : t)));
+    toggleTodoDb(id, !target.done);
+  };
 
-  const removeTodo = (id: string) =>
+  const removeTodo = (id: number) => {
     setTodos((p) => p.filter((t) => t.id !== id));
+    removeTodoDb(id);
+  };
 
   const addTodo = () => {
     const text = newTodo.trim();
     if (!text) return;
-    setTodos((p) => [...p, { id: `t${Date.now()}`, text, category: "info", done: false, priority: "mid" }]);
     setNewTodo("");
+    const sortOrder = todos.reduce((max, t) => Math.max(max, t.sortOrder), 0) + 1;
+    addTodoDb(data.trip.id, text, sortOrder).then(({ data: inserted }) => {
+      if (!inserted) return;
+      setTodos((p) => [
+        ...p,
+        {
+          id: inserted.id,
+          tripId: inserted.trip_id,
+          text: inserted.text,
+          category: inserted.category,
+          done: inserted.done,
+          priority: inserted.priority,
+          sortOrder: inserted.sort_order,
+        },
+      ]);
+    });
   };
 
   const visibleTodos = todos.filter((t) =>
@@ -219,11 +180,11 @@ export default function TripView() {
   );
 
   const doneCount = todos.filter((t) => t.done).length;
-  const progress = Math.round((doneCount / todos.length) * 100);
+  const progress = todos.length ? Math.round((doneCount / todos.length) * 100) : 0;
 
-  const heroPhoto =
-    cityHeroPhotos[activeCity][activeDayIdx] ??
-    cityHeroPhotos[activeCity][cityHeroPhotos[activeCity].length - 1];
+  const cityMemberNames = (city?.memberIds ?? [])
+    .map(memberName)
+    .filter((name, i, arr) => arr.indexOf(name) === i);
 
   return (
     <div className="min-h-screen bg-background text-foreground" style={{ fontFamily: "'DM Mono', monospace" }}>
@@ -237,11 +198,11 @@ export default function TripView() {
           </span>
           <ChevronRight size={11} className="hidden sm:block text-muted-foreground shrink-0" />
           <span className="hidden sm:inline text-sm font-semibold truncate" style={{ fontFamily: "'DM Mono', monospace" }}>
-            {trip.titleEn}
+            {data.trip.name}
           </span>
         </div>
         <div className="flex items-center gap-3 md:gap-5 text-xs text-muted-foreground shrink-0" style={{ fontFamily: "'DM Mono', monospace" }}>
-          <span className="hidden sm:inline">{formatDateRange(trip.startDate, trip.endDate)}</span>
+          <span className="hidden sm:inline">{formatDateRange(data.trip.startDate, data.trip.endDate)}</span>
           <span className="text-accent font-medium">{dayCount} DAYS</span>
           <div className="flex items-center gap-2">
             <div className="w-14 md:w-20 h-0.5 bg-secondary overflow-hidden rounded">
@@ -254,33 +215,32 @@ export default function TripView() {
 
       {/* ── City Tabs ─────────────────────────────────────────────────────── */}
       <div className="border-b border-border flex overflow-x-auto" style={{ scrollbarWidth: "none" }}>
-        {(["HK", "KL", "BKK"] as City[]).map((city) => {
-          const c = cityConfig[city];
-          const active = activeCity === city;
-          const cityDayCount = DAYS.filter((d) => d.city === city).length;
+        {data.cities.map((c) => {
+          const active = activeCity === c.code;
+          const colors = colorTokenClasses[c.colorToken];
           return (
             <button
-              key={city}
-              onClick={() => handleCitySwitch(city)}
+              key={c.code}
+              onClick={() => handleCitySwitch(c.code)}
               className={`
                 relative flex items-center gap-2 md:gap-3 px-4 md:px-8 py-3 md:py-3.5 text-sm transition-colors border-b-2 shrink-0
-                ${active ? `border-b-2 ${c.bg.replace("bg-", "border-")} bg-card` : "border-transparent hover:bg-secondary/30 text-muted-foreground"}
+                ${active ? `border-b-2 ${colors.bg.replace("bg-", "border-")} bg-card` : "border-transparent hover:bg-secondary/30 text-muted-foreground"}
               `}
             >
               {active && (
-                <div className={`w-1.5 h-1.5 rounded-full ${c.bg} shrink-0`} />
+                <div className={`w-1.5 h-1.5 rounded-full ${colors.bg} shrink-0`} />
               )}
-              <span className={active ? c.accent : ""} style={{ fontFamily: "'DM Mono', monospace" }}>
+              <span className={active ? colors.accent : ""} style={{ fontFamily: "'DM Mono', monospace" }}>
                 {c.label}
               </span>
               <span className={`text-xs hidden sm:inline ${active ? "text-muted-foreground" : "text-muted-foreground/50"}`}
                 style={{ fontFamily: "'DM Mono', monospace" }}>
-                {c.dates}
+                {formatCityDates(c.startDate, c.endDate)}
               </span>
               <span className={`text-[10px] px-1.5 py-0.5 rounded-sm border
-                ${active ? `${c.bg}/20 ${c.accent} ${c.bg.replace("bg-", "border-")}/30` : "bg-secondary/30 text-muted-foreground border-border"}`}
+                ${active ? `${colors.bg}/20 ${colors.accent} ${colors.bg.replace("bg-", "border-")}/30` : "bg-secondary/30 text-muted-foreground border-border"}`}
                 style={{ fontFamily: "'DM Mono', monospace" }}>
-                {cityDayCount}d
+                {c.days.length}d
               </span>
             </button>
           );
@@ -312,7 +272,7 @@ export default function TripView() {
           </div>
           {cityDays.map((day, i) => (
             <button
-              key={day.day}
+              key={day.id}
               onClick={() => setActiveDayIdx(i)}
               className={`
                 w-full text-left px-4 py-3.5 border-b border-border transition-colors
@@ -320,7 +280,7 @@ export default function TripView() {
               `}
             >
               <div className="text-[10px] text-muted-foreground mb-0.5" style={{ fontFamily: "'DM Mono', monospace" }}>
-                {day.date}（DAY {day.day}）
+                {day.date}（DAY {day.dayNumber}）
               </div>
               <div className="text-xs font-medium leading-tight">{day.label}</div>
               <div className="text-[10px] text-muted-foreground mt-1">
@@ -337,119 +297,134 @@ export default function TripView() {
           <div className="md:hidden flex gap-2 overflow-x-auto px-4 py-3 border-b border-border" style={{ scrollbarWidth: "none" }}>
             {cityDays.map((day, i) => (
               <button
-                key={day.day}
+                key={day.id}
                 onClick={() => setActiveDayIdx(i)}
                 className={`shrink-0 text-left px-3 py-2 rounded border transition-colors
                   ${activeDayIdx === i ? `bg-card ${cfg.bg.replace("bg-", "border-")}` : "border-border hover:bg-secondary/30"}`}
               >
                 <div className={`text-[9px] tracking-widest uppercase ${activeDayIdx === i ? cfg.accent : "text-muted-foreground"}`}
                   style={{ fontFamily: "'DM Mono', monospace" }}>
-                  DAY {day.day}
+                  DAY {day.dayNumber}
                 </div>
                 <div className="text-[11px] font-medium mt-0.5 whitespace-nowrap">{day.date}</div>
               </button>
             ))}
           </div>
 
-          {/* Hero */}
-          <div className="relative h-24 md:h-36 overflow-hidden bg-secondary">
-            <img src={heroPhoto} alt={currentDay.label} className="w-full h-full object-cover opacity-50" />
-            <div className="absolute inset-0 bg-gradient-to-r from-background via-background/70 to-transparent" />
-            <div className="absolute inset-0 px-4 md:px-8 flex items-center">
-              <div>
-                <div className={`text-[10px] tracking-[0.2em] uppercase mb-1 ${cfg.accent}`}
-                  style={{ fontFamily: "'DM Mono', monospace" }}>
-                  {cfg.labelEn} · {currentDay.dateJa}
-                </div>
-                <h2 className="text-xl md:text-2xl font-bold" style={{ fontFamily: "'DM Mono', monospace" }}>
-                  {currentDay.label}
-                </h2>
-              </div>
-            </div>
-          </div>
-
-          {/* Timeline */}
-          <div className="px-4 md:px-8 py-5 md:py-6 space-y-6 md:space-y-7">
-            {slots.map((slot) => {
-              const acts = currentDay.activities.filter((a) => a.slot === slot);
-              if (!acts.length) return null;
-              return (
-                <div key={slot}>
-                  <div className="flex items-center gap-2 mb-3">
-                    <span className={`flex items-center gap-1.5 text-[10px] tracking-widest uppercase text-muted-foreground`}
+          {currentDay && (
+            <>
+              {/* Hero */}
+              <div className="relative h-24 md:h-36 overflow-hidden bg-secondary">
+                {currentDay.heroPhotoUrl && (
+                  <img src={currentDay.heroPhotoUrl} alt={currentDay.label} className="w-full h-full object-cover opacity-30" />
+                )}
+                <div className="absolute inset-0 bg-gradient-to-r from-background via-background/70 to-transparent" />
+                <div className="absolute inset-0 px-4 md:px-8 flex items-center">
+                  <div>
+                    <div className={`text-[10px] tracking-[0.2em] uppercase mb-1 ${cfg.accent}`}
                       style={{ fontFamily: "'DM Mono', monospace" }}>
-                      {slotIcons[slot]}
-                      {slotLabel[slot]}
-                    </span>
-                    <div className="flex-1 h-px bg-border" />
-                  </div>
-                  <div className="relative pl-5 space-y-0.5">
-                    <div className="absolute left-0 top-2 bottom-2 w-px bg-border" />
-                    {acts.map((act) => (
-                      <div key={act.id} className="relative group">
-                        <div className={`absolute -left-[4px] top-4 w-2 h-2 rounded-full border transition-all
-                          ${act.highlight
-                            ? `${cfg.bg} ${cfg.bg.replace("bg-", "border-")} shadow-[0_0_8px_var(--tw-shadow-color)]`
-                            : "bg-background border-border group-hover:border-muted-foreground"
-                          }`}
-                          style={act.highlight ? { "--tw-shadow-color": "rgba(232,53,26,0.5)" } as React.CSSProperties : {}}
-                        />
-                        <div className={`ml-4 mb-0.5 px-4 py-3 rounded transition-colors
-                          ${act.highlight ? "bg-card border border-border" : "hover:bg-secondary/20"}`}>
-                          <div className="flex items-start gap-3 flex-wrap">
-                            {/* Time */}
-                            {act.time !== "—" && (
-                              <span className="text-sm tabular-nums text-accent shrink-0 w-10"
-                                style={{ fontFamily: "'DM Mono', monospace" }}>
-                                {act.time}
-                              </span>
-                            )}
-                            {/* Cat icon */}
-                            <span className={`mt-0.5 shrink-0 ${categoryColors[act.category]}`}>
-                              {act.category === "transport" && /フライト|到着|出発|→.*[A-Z]{3}|[A-Z]{3}.*→/.test(act.title)
-                                ? <Plane size={11} />
-                                : categoryIcons[act.category]}
-                            </span>
-                            {/* Title + meta */}
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-2 flex-wrap">
-                                <span className="text-sm font-medium">{act.title}</span>
-                                {act.highlight && <Star size={9} className="text-accent fill-accent shrink-0" />}
-                              </div>
-                              {act.place && (
-                                <div className="flex items-center gap-1 mt-0.5 text-xs text-muted-foreground">
-                                  <MapPin size={9} />
-                                  {act.place}
-                                </div>
-                              )}
-                              {act.note && (
-                                <p className="mt-1 text-[11px] text-muted-foreground leading-relaxed"
-                                  style={{ fontFamily: "'DM Mono', monospace" }}>
-                                  // {act.note}
-                                </p>
-                              )}
-                            </div>
-                            {/* People */}
-                            {act.people && (
-                              <div className="flex flex-wrap gap-1 shrink-0">
-                                {act.people.map((p) => (
-                                  <span key={p}
-                                    className={`text-[10px] px-1.5 py-0.5 rounded-sm border ${personColors[p]}`}
-                                    style={{ fontFamily: "'DM Mono', monospace" }}>
-                                    {p}
-                                  </span>
-                                ))}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    ))}
+                      {cfg.labelEn} · {formatDateJa(currentDay.date)}
+                    </div>
+                    <h2 className="text-xl md:text-2xl font-bold" style={{ fontFamily: "'DM Mono', monospace" }}>
+                      {currentDay.label}
+                    </h2>
                   </div>
                 </div>
-              );
-            })}
-          </div>
+              </div>
+
+              {/* Timeline */}
+              <div className="px-4 md:px-8 py-5 md:py-6 space-y-6 md:space-y-7">
+                {slots.map((slot) => {
+                  const acts = currentDay.activities.filter((a) => a.slot === slot);
+                  if (!acts.length) return null;
+                  return (
+                    <div key={slot}>
+                      <div className="flex items-center gap-2 mb-3">
+                        <span className={`flex items-center gap-1.5 text-[10px] tracking-widest uppercase text-muted-foreground`}
+                          style={{ fontFamily: "'DM Mono', monospace" }}>
+                          {slotIcons[slot]}
+                          {slotLabel[slot]}
+                        </span>
+                        <div className="flex-1 h-px bg-border" />
+                      </div>
+                      <div className="relative pl-5 space-y-0.5">
+                        <div className="absolute left-0 top-2 bottom-2 w-px bg-border" />
+                        {acts.map((act) => {
+                          const people = act.memberIds.map(memberName);
+                          return (
+                          <div key={act.id} className="relative group">
+                            <div className={`absolute -left-[4px] top-4 w-2 h-2 rounded-full border transition-all
+                              ${act.highlight
+                                ? `${cfg.bg} ${cfg.bg.replace("bg-", "border-")} shadow-[0_0_8px_var(--tw-shadow-color)]`
+                                : "bg-background border-border group-hover:border-muted-foreground"
+                              }`}
+                              style={act.highlight ? { "--tw-shadow-color": "rgba(232,53,26,0.5)" } as React.CSSProperties : {}}
+                            />
+                            <div className={`ml-4 mb-0.5 px-4 py-3 rounded transition-colors
+                              ${act.highlight ? "bg-card border border-border" : "hover:bg-secondary/20"}`}>
+                              <div className="flex items-start gap-3 flex-wrap">
+                                {/* Time */}
+                                {act.time && (
+                                  <span className="text-sm tabular-nums text-accent shrink-0 w-10"
+                                    style={{ fontFamily: "'DM Mono', monospace" }}>
+                                    {act.time.slice(0, 5)}
+                                  </span>
+                                )}
+                                {!act.time && (
+                                  <span className="text-sm tabular-nums text-accent shrink-0 w-10"
+                                    style={{ fontFamily: "'DM Mono', monospace" }}>
+                                    —
+                                  </span>
+                                )}
+                                {/* Cat icon */}
+                                <span className={`mt-0.5 shrink-0 ${categoryColors[act.category]}`}>
+                                  {act.category === "transport" && /フライト|到着|出発|→.*[A-Z]{3}|[A-Z]{3}.*→/.test(act.title)
+                                    ? <Plane size={11} />
+                                    : categoryIcons[act.category]}
+                                </span>
+                                {/* Title + meta */}
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center gap-2 flex-wrap">
+                                    <span className="text-sm font-medium">{act.title}</span>
+                                    {act.highlight && <Star size={9} className="text-accent fill-accent shrink-0" />}
+                                  </div>
+                                  {act.place && (
+                                    <div className="flex items-center gap-1 mt-0.5 text-xs text-muted-foreground">
+                                      <MapPin size={9} />
+                                      {act.place}
+                                    </div>
+                                  )}
+                                  {act.note && (
+                                    <p className="mt-1 text-[11px] text-muted-foreground leading-relaxed"
+                                      style={{ fontFamily: "'DM Mono', monospace" }}>
+                                      // {act.note}
+                                    </p>
+                                  )}
+                                </div>
+                                {/* People */}
+                                {people.length > 0 && (
+                                  <div className="flex flex-wrap gap-1 shrink-0">
+                                    {people.map((p) => (
+                                      <span key={p}
+                                        className={`text-[10px] px-1.5 py-0.5 rounded-sm border ${personColors[p] ?? "bg-secondary/30 text-muted-foreground border-border"}`}
+                                        style={{ fontFamily: "'DM Mono', monospace" }}>
+                                        {p}
+                                      </span>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </>
+          )}
         </main>
 
         {/* ── Right: ToDo ───────────────────────────────────────────────── */}
@@ -539,8 +514,8 @@ export default function TripView() {
               MEMBERS
             </div>
             <div className="flex flex-wrap gap-1.5">
-              {cityMembers[activeCity].map((p) => (
-                <span key={p} className={`text-[10px] px-2 py-0.5 rounded-sm border ${personColors[p]}`}
+              {cityMemberNames.map((p) => (
+                <span key={p} className={`text-[10px] px-2 py-0.5 rounded-sm border ${personColors[p] ?? "bg-secondary/30 text-muted-foreground border-border"}`}
                   style={{ fontFamily: "'DM Mono', monospace" }}>
                   {p}
                 </span>
