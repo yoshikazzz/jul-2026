@@ -9,6 +9,7 @@ export interface Member {
   id: string;
   name: string;
   isEveryone: boolean;
+  colorToken: string;
   sortOrder: number;
 }
 
@@ -95,7 +96,7 @@ export async function fetchTripData(code: string): Promise<TripData | null> {
   if (!trip) return null;
 
   const [{ data: members }, { data: cities }, { data: todos }] = await Promise.all([
-    supabase.from("members").select("id, name, is_everyone, sort_order").order("sort_order"),
+    supabase.from("members").select("id, name, is_everyone, color_token, sort_order").order("sort_order"),
     supabase
       .from("cities")
       .select(
@@ -124,6 +125,7 @@ export async function fetchTripData(code: string): Promise<TripData | null> {
       id: m.id,
       name: m.name,
       isEveryone: m.is_everyone,
+      colorToken: m.color_token,
       sortOrder: m.sort_order,
     })),
     cities: (cities ?? [])

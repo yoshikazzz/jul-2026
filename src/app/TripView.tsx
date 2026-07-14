@@ -20,17 +20,29 @@ const colorTokenClasses: Record<string, { accent: string; bg: string }> = {
   amber: { accent: "text-amber-400", bg: "bg-amber-500" },
 };
 
-const personColors: Record<string, string> = {
-  "すぅ":    "bg-rose-500/20 text-rose-300 border-rose-500/30",
-  "ふぅ":    "bg-violet-500/20 text-violet-300 border-violet-500/30",
-  "じょしゅ": "bg-blue-500/20 text-blue-300 border-blue-500/30",
-  "ゆず":    "bg-amber-500/20 text-amber-300 border-amber-500/30",
-  "もぐ":    "bg-pink-500/20 text-pink-300 border-pink-500/30",
-  "だぃ":    "bg-lime-500/20 text-lime-300 border-lime-500/30",
-  "はりぃ":  "bg-orange-500/20 text-orange-300 border-orange-500/30",
-  "まこ":    "bg-cyan-500/20 text-cyan-300 border-cyan-500/30",
-  "こうへい": "bg-indigo-500/20 text-indigo-300 border-indigo-500/30",
-  "全員":    "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
+// Palette a member's `color_token` (set on the members table) can reference.
+// Keep this list ahead of actual usage so new members never need a code change.
+const personColorTokenClasses: Record<string, string> = {
+  rose:    "bg-rose-500/20 text-rose-300 border-rose-500/30",
+  pink:    "bg-pink-500/20 text-pink-300 border-pink-500/30",
+  fuchsia: "bg-fuchsia-500/20 text-fuchsia-300 border-fuchsia-500/30",
+  purple:  "bg-purple-500/20 text-purple-300 border-purple-500/30",
+  violet:  "bg-violet-500/20 text-violet-300 border-violet-500/30",
+  indigo:  "bg-indigo-500/20 text-indigo-300 border-indigo-500/30",
+  blue:    "bg-blue-500/20 text-blue-300 border-blue-500/30",
+  sky:     "bg-sky-500/20 text-sky-300 border-sky-500/30",
+  cyan:    "bg-cyan-500/20 text-cyan-300 border-cyan-500/30",
+  teal:    "bg-teal-500/20 text-teal-300 border-teal-500/30",
+  emerald: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
+  green:   "bg-green-500/20 text-green-300 border-green-500/30",
+  lime:    "bg-lime-500/20 text-lime-300 border-lime-500/30",
+  yellow:  "bg-yellow-500/20 text-yellow-300 border-yellow-500/30",
+  amber:   "bg-amber-500/20 text-amber-300 border-amber-500/30",
+  orange:  "bg-orange-500/20 text-orange-300 border-orange-500/30",
+  red:     "bg-red-500/20 text-red-300 border-red-500/30",
+  slate:   "bg-slate-500/20 text-slate-300 border-slate-500/30",
+  zinc:    "bg-zinc-500/20 text-zinc-300 border-zinc-500/30",
+  stone:   "bg-stone-500/20 text-stone-300 border-stone-500/30",
 };
 
 const categoryColors: Record<Activity["category"], string> = {
@@ -123,6 +135,12 @@ export default function TripView() {
   if (status === "notfound" || !data) return <Reserved />;
 
   const memberName = (id: string) => data.members.find((m) => m.id === id)?.name ?? id;
+  const personClassByName: Record<string, string> = Object.fromEntries(
+    data.members.map((m) => [
+      m.name,
+      personColorTokenClasses[m.colorToken] ?? "bg-secondary/30 text-muted-foreground border-border",
+    ])
+  );
 
   const city = data.cities.find((c) => c.code === activeCity) ?? data.cities[0];
   const cityDays = city?.days ?? [];
@@ -385,7 +403,7 @@ export default function TripView() {
                                   <div className="flex flex-wrap gap-1 shrink-0">
                                     {people.map((p) => (
                                       <span key={p}
-                                        className={`text-[10px] px-1.5 py-0.5 rounded-sm border ${personColors[p] ?? "bg-secondary/30 text-muted-foreground border-border"}`}
+                                        className={`text-[10px] px-1.5 py-0.5 rounded-sm border ${personClassByName[p] ?? "bg-secondary/30 text-muted-foreground border-border"}`}
                                         style={{ fontFamily: "'DM Mono', monospace" }}>
                                         {p}
                                       </span>
@@ -413,7 +431,7 @@ export default function TripView() {
             </div>
             <div className="flex flex-wrap gap-1.5">
               {cityMemberNames.map((p) => (
-                <span key={p} className={`text-[10px] px-2 py-0.5 rounded-sm border ${personColors[p] ?? "bg-secondary/30 text-muted-foreground border-border"}`}
+                <span key={p} className={`text-[10px] px-2 py-0.5 rounded-sm border ${personClassByName[p] ?? "bg-secondary/30 text-muted-foreground border-border"}`}
                   style={{ fontFamily: "'DM Mono', monospace" }}>
                   {p}
                 </span>
